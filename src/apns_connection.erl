@@ -325,8 +325,12 @@ code_change(_OldVsn, State, _Extra) ->  {ok, State}.
 %% Private functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 build_payload(Params, Extra, Content_Available) ->
-  jiffy:encode(
-    {[{<<"aps">>, do_build_payload(Params, Content_Available)} | Extra]}).
+  %% change to jsx
+%%  jiffy:encode(
+%%    {[{<<"aps">>, do_build_payload(Params, Content_Available)} | Extra]}).
+  {Pload} = do_build_payload(Params, Content_Available),
+  RData = [{<<"aps">>, Pload} | Extra],
+  jsx:encode(RData).
 
 do_build_payload(Params, Content_Available) when Content_Available ->
   do_build_payload(Params, [{<<"content-available">>, 1}]);
