@@ -188,7 +188,7 @@ handle_cast(Msg, State) when is_record(Msg, apns_msg) ->
 %%   Socket = State#state.out_socket,
 %%   case State#state.out_expires =< epoch() of
 %%     true ->
-%%       %¤£¤¤Â_³s½u,¬Æ»ò³£¤£°µ 20160401 mark by ruby
+%%       %ä¸ä¸­æ–·é€£ç·š,ç”šéº¼éƒ½ä¸åš 20160401 mark by ruby
 %%       ssl:close(Socket),
 %%       handle_cast(Msg, State#state{out_socket = undefined});
 %%     false ->
