@@ -185,12 +185,13 @@ handle_cast(Msg, State=#state{ out_socket = undefined
   end;
 
 handle_cast(Msg, State) when is_record(Msg, apns_msg) ->
-  Socket = State#state.out_socket,
-  case State#state.out_expires =< epoch() of
-    true ->
-      ssl:close(Socket),
-      handle_cast(Msg, State#state{out_socket = undefined});
-    false ->
+%%   Socket = State#state.out_socket,
+%%   case State#state.out_expires =< epoch() of
+%%     true ->
+%%       %不中斷連線,甚麼都不做 20160401 mark by ruby
+%%       ssl:close(Socket),
+%%       handle_cast(Msg, State#state{out_socket = undefined});
+%%     false ->
       Connection = State#state.connection,
       Timeout = epoch() + Connection#apns_connection.expires_conn,
       Payload = build_payload(Msg),
@@ -203,8 +204,8 @@ handle_cast(Msg, State) when is_record(Msg, apns_msg) ->
       {error, Reason} ->
         apns_queue:fail(State#state.queue, Msg#apns_msg.id),
         {stop, {error, Reason}, State}
-    end
-  end;
+    end;
+%%   end;
 
 handle_cast(stop, State) ->
   {stop, normal, State}.
@@ -225,9 +226,9 @@ handle_info( {ssl, SslSocket, Data}
       case Command of
         8 -> %% Error
           Status = parse_status(StatusCode),
-          {_MsgFailed, RestMsg} = apns_queue:fail(State#state.queue, MsgId),
+          {MsgFailed, RestMsg} = apns_queue:fail(State#state.queue, MsgId),
           [send_message(self(), M) || M <- RestMsg],
-          try call(Error, [MsgId, Status]) of
+          try call(Error, [MsgFailed, Status]) of
             stop -> throw({stop, {msg_error, MsgId, Status}, State});
             _ -> noop
           catch
